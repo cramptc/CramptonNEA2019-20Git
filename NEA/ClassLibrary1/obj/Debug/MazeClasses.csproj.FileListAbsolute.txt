@@ -1,0 +1,9 @@
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\bin\Debug\ImageProcessor.dll
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\bin\Debug\ImageProcessor.xml
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\obj\Debug\MazeClasses.csprojAssemblyReference.cache
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\obj\Debug\MazeClasses.csproj.CoreCompileInputs.cache
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\obj\Debug\MazeClasses.csproj.CopyComplete
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
