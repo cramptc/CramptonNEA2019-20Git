@@ -11,11 +11,9 @@ namespace NEAApp.App
     {
         static void Main(string[] args)
         {
-                Console.WriteLine("Edit Main.cs string name to decide which picture to use");
-                string name = "Edge Testing Flash.jpg";
-                ImageHandler IH = new ImageHandler(name);
-                IH.ShowEdges(IH._image);
-                Console.WriteLine("Finished");
+            ImageHandler IH = new ImageHandler("Trial Maze.jpg");
+            IH.check();
+            //foreach (int i in IH._bitmaparray) { Console.WriteLine(i.ToString()); }
         }
     }
 }

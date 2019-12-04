@@ -2,9 +2,7 @@ C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bi
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bin\Debug\NEAApp.App.exe
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bin\Debug\NEAApp.App.pdb
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bin\Debug\ClassLibrary1.dll
-C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bin\Debug\ImageProcessor.dll
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bin\Debug\ClassLibrary1.pdb
-C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\bin\Debug\ImageProcessor.xml
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\obj\Debug\MazeApp.csprojAssemblyReference.cache
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\obj\Debug\MazeApp.csproj.CoreCompileInputs.cache
 C:\Users\Chris Crampton\Documents\GitHub\CramptonNEA2019-20Git\NEA\NEAApp.App\obj\Debug\MazeApp.csproj.CopyComplete
