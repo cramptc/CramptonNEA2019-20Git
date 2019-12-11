@@ -12,7 +12,19 @@ namespace NEAApp.App
         static void Main(string[] args)
         {
             ImageHandler IH = new ImageHandler("Trial Maze.jpg");
-            IH.check();
+            Console.WriteLine("Initiated");
+            IH.Unpack();
+            Console.WriteLine("Unpacked");
+            IH.Grayscale();
+            Console.WriteLine("Grayscaled");
+            IH.Sharpen();
+            Console.WriteLine("Sharpened");
+            IH.Packup();
+            Console.WriteLine("Packed");
+            IH.Save();
+            Console.WriteLine(IH._white);
+            Console.WriteLine(IH._black);
+            Console.ReadLine();
             //foreach (int i in IH._bitmaparray) { Console.WriteLine(i.ToString()); }
         }
     }

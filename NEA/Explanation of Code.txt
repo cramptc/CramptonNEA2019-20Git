@@ -1,0 +1,6 @@
+Variables:
+Packed Array - (Ordered from TL)AList of BLists of Pixels, Each BList represents a row of the bitmap, Each pixel is represented by a byte[4] where each byte is a value of 0-255 for ARGB
+_bitmaparray - Giant Unweildy byte array of each byte of the bitmap 
+_bitmapheader - (Section of _bitmaparray)
+_bitmappixelarray - (Section of _bitmaparray) The byte[] of just the pixel data but in reverse order ie bottum up
+Processes:
