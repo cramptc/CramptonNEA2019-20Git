@@ -3,4 +3,13 @@ Packed Array - (Ordered from TL)AList of BLists of Pixels, Each BList represents
 _bitmaparray - Giant Unweildy byte array of each byte of the bitmap 
 _bitmapheader - (Section of _bitmaparray)
 _bitmappixelarray - (Section of _bitmaparray) The byte[] of just the pixel data but in reverse order ie bottum up
-Processes:
+argument for LowRes must be a power of two not a value. eg Lowres(n) = SF 2^n
+
+Standard for parsing through the pixels
+            foreach (List<byte[]> row in _packedarray)
+            {
+                foreach (byte[] pxl in row)
+                {
+                }
+            }
+

@@ -1,0 +1,4 @@
+Maze Specs
+- Two red dots, start and end points
+- Blue Outline fully enveloping both Red Dots
+- Solid Blue Lines for each Wall to avoid confusion of gap
