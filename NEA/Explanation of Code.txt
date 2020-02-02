@@ -13,3 +13,17 @@ Standard for parsing through the pixels
                 }
             }
 
+		noderow.Add(new Node(location[1], location[0], GCost(location, _start), HCost(location, _stop), pxl[1] + pxl[2] + pxl[3]));
+
+		                List<Node> noderow = new List<Node> { };
+                if (input.IndexOf(row) < _maxheight | input.IndexOf(row) > _minwidth)
+                {
+                    foreach (byte[] pxl in row)
+                    {
+                        if (row.IndexOf(pxl) < _maxwidth | row.IndexOf(pxl) > _minwidth)
+                        {
+                            List<int> location = new List<int> { input.IndexOf(row), row.IndexOf(pxl) };
+                            _Nodesopen.Add(new Node(location[1], location[0], GCost(location, _start), HCost(location, _stop), pxl[1] + pxl[2] + pxl[3]));
+                        }
+                    }
+                }

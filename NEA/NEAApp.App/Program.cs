@@ -11,23 +11,17 @@ namespace NEAApp.App
     {
         static void Main(string[] args)
         {
-            //ImageHandler IHA = new ImageHandler("Edge Testing Average Light.jpg");
-            //ImageHandler IHB = new ImageHandler("Edge Testing Low Light.jpg");
-            //ImageHandler IHC = new ImageHandler("Edge Testing Flash.jpg");
-            ImageHandler IHD = new ImageHandler("Trial Maze1.jpg");
-            List<ImageHandler> IHL = new List<ImageHandler> {IHD};
+            ImageHandler IHA = new ImageHandler("Trial Maze1.jpg",-30,110);
+            ImageHandler IHB = new ImageHandler("Trial Maze2.jpg",-20,120);
+            ImageHandler IHC = new ImageHandler("Trial Maze3.jpg",-30,100);
+            ImageHandler IHD = new ImageHandler("Trial Maze4.jpg",-30,90);
+            ImageHandler IHE = new ImageHandler("Trial Maze5.jpg",0,90);
+            List<ImageHandler> IHL = new List<ImageHandler> {IHB};
             foreach (ImageHandler IH in IHL)
             {
                 IH.Unpack();
                 Console.WriteLine("Ya");
-                IH.FindStartStop();
-                IH.FindEdges();
-                IH.Grayscale();
-                IH.Sharpen();
-                IH.Redify();
                 IH.LowRes(3);
-                IH.ShowEndPoints();
-                IH.Drawbounds();
                 IH.Packup();
                 IH.Save();
                 Console.WriteLine("Done");

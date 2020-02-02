@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using NodeClasses;
 
 namespace MazeClasses
 {
@@ -23,10 +24,16 @@ namespace MazeClasses
         string _imagedir;
         string _bmpimagedir;
         int _dataoffset;
+        int _newwidth;
+        int _newheight;
+        //Lower is more lenient
+        int _const;
         //High is White
-        int _bwthreshhold = 100;
+        int _bwthreshhold;
         List<int> _start = new List<int>();
         List<int> _stop = new List<int>();
+        List<int> _cstart = new List<int>();
+        List<int> _cstop = new List<int>();
         List<List<byte[]>> _packedarray = new List<List<byte[]>>();
         List<List<int>> _reds = new List<List<int>>();
         int _maxheight;
@@ -34,11 +41,15 @@ namespace MazeClasses
         int _maxwidth;
         int _minwidth;
         string _imagename;
+        Node Begin;
+        Node End;
 
         //Outputs a bitmap header byte array, a bitmap pixel data byte array, the height and width of the bitmap
         //Useful variable names: _height,_width,_bitmappixelarray,_bitmapheader
-        public ImageHandler(string Imagename)
+        public ImageHandler(string Imagename,int cons, int bw)
         {
+            _bwthreshhold = bw;
+            _const = cons;
             _imagename = Imagename;
             _outputpath = _path + Imagename.Split('.')[0] + "outputmaze.bmp";
             _imagedir = _path + Imagename;
@@ -67,13 +78,7 @@ namespace MazeClasses
                 _bytelength = _bitmaparray.Length;
                 byte[] bmpsize = new byte[4];
                 bmpsize[0] = _bitmaparray[10];
-                //bmpsize[1] = _bitmaparray[11];
-                //bmpsize[2] = _bitmaparray[12];
-                //bmpsize[3] = _bitmaparray[13];
-                //Console.WriteLine(bmpsize);
-                //_dataoffset = BitConverter.ToInt32(bmpsize,0);
                 _dataoffset = 54;
-                //Console.WriteLine(_dataoffset);
                 byte[] headerbuffer = new byte[_dataoffset];
                 bmpStream.Position = 0;
                 using (MemoryStream ms = new MemoryStream())
@@ -83,7 +88,6 @@ namespace MazeClasses
                     _bitmapheader = ms.ToArray();
                 }
                 //To increment the actual start of the data
-                //bmpStream.Position +=3;
                 using (MemoryStream ms = new MemoryStream())
                 {
                     int reada;
@@ -95,7 +99,17 @@ namespace MazeClasses
                 }
             }
         }
-        public void Go() { }
+
+
+
+
+
+
+
+
+
+
+
         public void LowRes(int sf)
         {
             int consistentsw = _packedarray[0].Count;
@@ -104,7 +118,7 @@ namespace MazeClasses
             //Iterates number of times required to remove
             for (int i = sf; i > 0;i --)
             {
-                //Halves Width
+                //Halves Width`
                 foreach (List<byte[]> row in temppackedarray)
                 {
                     for(int c = row.Count-1; c >=0; c -=2)
@@ -117,35 +131,49 @@ namespace MazeClasses
                 {
                     temppackedarray.Remove(temppackedarray[c]);
                 }
+                Console.WriteLine("Made Small");
             }
-            Console.WriteLine("Made Small");
+            FindEdges(temppackedarray);
+            FindStartStop(temppackedarray);
+            Grayscale();
+            Sharpen();
+            temppackedarray = Solve(temppackedarray);
+            //Redify();
+            //ShowEndPoints();
+            //Drawbounds();
+            foreach (List<byte[]> row in temppackedarray) { if (row.Count != temppackedarray[0].Count) { Console.WriteLine("Not uniform"); } }
             //Iterates number of times required to replenish
             for (int i = sf; i > 0; i--)
             {
                 //Doubles Width
-                for(int j = 0; j < temppackedarray.Count;j++)
+                for (int j = 0; j < temppackedarray.Count; j++)
                 {
                     List<byte[]> temp = new List<byte[]> { };
-                    foreach (byte[] pxl in temppackedarray[j]) { temp.Add(pxl);temp.Add(pxl); }
+                    foreach (byte[] pxl in temppackedarray[j]) { temp.Add(pxl); temp.Add(pxl); }
                     temppackedarray[j] = temp;
                 }
                 //Doubles Height
                 int l = temppackedarray.Count;
-                for (int j = l-1; j >= 0;j--)
+                for (int j = l - 1; j >= 0; j--)
                 {
                     temppackedarray.Insert(j + 1, temppackedarray[j]);
                 }
+                Console.WriteLine("Made Big");
             }
-            Console.WriteLine("Made Big");
+            _newwidth = temppackedarray[0].Count;
+            _newheight = temppackedarray.Count;
             _packedarray = temppackedarray;
-            //Sanity check to ensure original dimensions preserved
-                if (_packedarray.Count != consistentsh | _packedarray[0].Count != consistentsw)
-            {
-                Console.WriteLine("Nah mate booboo made");
-                Console.WriteLine(_packedarray.Count-consistentsh);
-                Console.WriteLine(_packedarray[0].Count-consistentsw);
-            }
         }
+
+
+
+
+
+
+
+
+
+
         public void Blur(int offset)
         {
             int total=0;
@@ -181,7 +209,7 @@ namespace MazeClasses
                 }
             }
         }
-        public void FindEdges()
+        public void FindEdges(List<List<byte[]>> array)
         {
             //Each max/min parameter starts at opposite side and moves towards where its meant to be, each max/min should cross eachother
             int rowcount = 0;
@@ -190,11 +218,11 @@ namespace MazeClasses
             int maxheight = 0;
             int minwidth = _width;
             int maxwidth = 0;
-            foreach (List<byte[]> row in _packedarray)
+            foreach (List<byte[]> row in array)
             {
                 foreach (byte[] pxl in row)
                 {
-                    if ((pxl[3] > (pxl[1] + pxl[2]))|| (pxl[1]>(pxl[2]+pxl[3]+30)))
+                    if ((pxl[3] > (pxl[1] + pxl[2])+_const)|| (pxl[1]>(pxl[2]+pxl[3])+_const))
                     {
                         if (rowcount > maxheight) { maxheight = rowcount; }
                         if (rowcount < minheight) { minheight = rowcount; }
@@ -225,7 +253,7 @@ namespace MazeClasses
                 pxl[2] = 0;
                 pxl[3] = 255;
             }
-            for (int i = 0; i<_height;i++)
+            for (int i = 0; i<_packedarray.Count;i++)
             {
                 _packedarray[i][_minwidth][1] = 0;
                 _packedarray[i][_minwidth][2] = 0;
@@ -238,6 +266,10 @@ namespace MazeClasses
         public void Save()
         {
             File.Delete(_outputpath);
+            _bitmapheader[19] = (byte)(_newwidth / 256);
+            _bitmapheader[18] = (byte)(_newwidth % 256);
+            _bitmapheader[23] = (byte)(_newheight / 256);
+            _bitmapheader[22] = (byte)(_newheight % 256);
             var finalarray = _bitmapheader.Concat(_bitmappixelarray);
             var finalbytearray = finalarray.ToArray();
             File.WriteAllBytes(_outputpath, finalbytearray);
@@ -262,12 +294,12 @@ namespace MazeClasses
                 {
                     row.Add(rawpixels[width + (height * _width)]);
                 }
-_packedarray.Add(row);
+                _packedarray.Add(row);
             }
         }
         public void Packup()
         {
-            byte[] outputstream = new byte[_bitmappixelarray.Length];
+            byte[] outputstream = new byte[_packedarray.Count * 4 * _packedarray[0].Count];
             int count = 0;
             foreach (List<byte[]> row in _packedarray)
             {
@@ -307,15 +339,16 @@ _packedarray.Add(row);
                 }
             }
         }
-        public void FindStartStop()
+        public void FindStartStop(List<List<byte[]>> array)
         {
             int rowcount = 0;
             int columncount = 0;
-            foreach (List<byte[]> row in _packedarray)
+            //array to _packedarray
+            foreach (List<byte[]> row in array)
             {
                 foreach (byte[] pxl in row)
                 {
-                    if (pxl[1] > (pxl[2] + pxl[3])+20)
+                    if (pxl[1] > (pxl[2] + pxl[3]+_const))
                     {
                         List<int> pxlid = new List<int> { rowcount, columncount };
                         _reds.Add(pxlid);
@@ -333,7 +366,7 @@ _packedarray.Add(row);
                 double distance;
                 foreach (List<int> location in _reds)
                 {
-                    distance = Math.Sqrt(Math.Pow(location[0], 2) + Math.Pow(location[1], 2));
+                    distance = Math.Sqrt(Math.Pow(Math.Abs(location[0]-start[0]), 2) + Math.Pow(Math.Abs(location[1]-start[1]), 2));
                     if (distance > maxdistance)
                     {
                         maxdistance = distance;
@@ -342,6 +375,12 @@ _packedarray.Add(row);
                 }
                 _start = start;
                 _stop = stop;
+            }
+            foreach (List<int> place in _reds)
+            {
+                _packedarray[place[0]][place[1]][1] = 255;
+                _packedarray[place[0]][place[1]][2] = 255;
+                _packedarray[place[0]][place[1]][3] = 255;
             }
         }
         public void ShowEndPoints ()
@@ -370,8 +409,8 @@ _packedarray.Add(row);
             foreach (List<int> place in _reds)
             {
                 _packedarray[place[0]][place[1]][1] = 255;
-                _packedarray[place[0]][place[1]][2] = 255;
-                _packedarray[place[0]][place[1]][3] = 255;
+                _packedarray[place[0]][place[1]][2] = 0;
+                _packedarray[place[0]][place[1]][3] = 0;
             }
         }
 
@@ -395,6 +434,187 @@ _packedarray.Add(row);
                     }
                 }
             }
+        }
+        public int HCost(int[] place, List<int> stop)
+        {
+            int H = 0;
+            int deltax = Math.Abs(place[1] - stop[1]);
+            int deltay = Math.Abs(place[0] - stop[0]);
+            if (deltax > deltay) { H += (deltax - deltay) * 10; H += (deltay * 14); }
+            if (deltax < deltay) { H += (deltay - deltax) * 10; H += (deltax * 14); }
+            else { H += deltay * 14; }
+            return H;
+        }
+
+
+
+
+        public List<List<byte[]>> Solve(List<List<byte[]>> input)
+        {
+            //Assemble list of nodes
+            List<Node> Unchecked = new List<Node> { };
+            List<Node> Viable = new List<Node> { };
+            List<Node> Checked = new List<Node> { };
+            IDictionary<int[],Node> NodeLocations = new Dictionary<int[],Node>(new CheckEquality()) { };
+            int counter = 0;
+            foreach (List<byte[]> row in input)
+            {
+                if (input.IndexOf(row) < _maxheight | input.IndexOf(row) > _minwidth)
+                {
+                    foreach (byte[] pxl in row)
+                    {
+                        if (row.IndexOf(pxl) < _maxwidth | row.IndexOf(pxl) > _minwidth)
+                        {
+                            int[] location = new int[2] { input.IndexOf(row), row.IndexOf(pxl) };
+                            if (location[0] == _start[0] && location[1] == _start[1])
+                            {
+                                Begin = new Node(location, HCost(location, _stop), pxl[1] + pxl[2] + pxl[3],counter);
+                                Console.WriteLine("Found Start");
+                                Begin._G = 0;
+                                Begin.GenerateF();
+                                Viable.Add(Begin);
+                            }
+                            if (location[0] == _stop[0] && location[1] == _stop[1])
+                            {
+                                End = new Node(location, HCost(location, _stop), pxl[1] + pxl[2] + pxl[3],counter);
+                                    Console.WriteLine("Found End");
+                            }
+                            Node tempnode = new Node(location, HCost(location, _stop), pxl[1] + pxl[2] + pxl[3],counter);
+                            Unchecked.Add(tempnode);
+                            NodeLocations.Add(location,tempnode);
+                        }
+                        counter++;
+                    }
+                }
+            }
+            input[Begin._y][Begin._x][1] = 150;
+            input[Begin._y][Begin._x][2] = 150;
+            input[Begin._y][Begin._x][3] = 150;
+            input[End._y][End._x][1] = 150;
+            input[End._y][End._x][2] = 150;
+            input[End._y][End._x][3] = 150;
+            Console.WriteLine("Declared All the Nodes");
+            Node current = Begin;
+            int c = 0;
+            int found = 0;
+            int colour = 0;
+            while (found == 0)
+            {
+                Viable.Sort();
+                if (Viable.Count == 0) { Console.WriteLine("Viable empty abort"); break; }
+                current = Viable[0];
+                if (current.Equals(End)) { Console.WriteLine("I've found it using equals"); found = 1; break; }
+                if (current._x == End._x && current._y == End._y) { Console.WriteLine("I've found it"); found = 1; break; }
+                //Generate Neighbours
+                List<Node> neighbours = new List<Node> { };
+                int x = current._x;
+                int y = current._y;
+                if (x != _minwidth)
+                { 
+                    Node newn = NodeLocations[new int[2]{ y, x - 1 }];
+                    newn.distance = 10;
+                    if (newn._canwalk)
+                    { neighbours.Add(newn); }
+                }
+                if (x != _maxwidth)
+                {
+                    Node newn = NodeLocations[new int[2]{ y, x + 1 }];
+                    newn.distance = 10;
+                    if (newn._canwalk)
+                    { neighbours.Add(newn); }
+                }
+                if (y != _minheight)
+                {
+                    Node newn = NodeLocations[new int[2]{ y - 1, x }];
+                    newn.distance = 10;
+                    if (newn._canwalk)
+                    { neighbours.Add(newn); }
+                }
+                if (y != _maxheight)
+                {
+                    Node newn = NodeLocations[new int[2] { y + 1, x }];
+                    newn.distance = 10;
+                    if (newn._canwalk)
+                    { neighbours.Add(newn); }
+                }
+
+                if (x != _minwidth && y != _minheight)
+                {
+                    Node newn = NodeLocations[new int[2]{ y - 1, x - 1 }];
+                    newn.distance = 14;
+                    if (newn._canwalk)
+                    { neighbours.Add(newn); }
+                }
+                if (x != _minwidth && y != _maxheight)
+                {
+                    Node newn = NodeLocations[new int[2] { y + 1, x - 1 }];
+                    newn.distance = 14;
+                    if (newn._canwalk)
+                    { neighbours.Add(newn); }
+                }
+                if (x != _maxwidth && y != _maxheight)
+                {
+                    Node newn = NodeLocations[new int[2]{ y + 1, x + 1 }];
+                    newn.distance = 14;
+                    if (newn._canwalk) { neighbours.Add(newn); }
+                }
+                if (x != _maxwidth && y != _minheight)
+                {
+                    Node newn = NodeLocations[new int[2]{ y - 1, x + 1 }];
+                    newn.distance = 14;
+                    if (newn._canwalk) { neighbours.Add(newn); }
+                }
+                foreach (Node n in neighbours)
+                {
+                    if (n == End) { break; }
+                    if (Checked.Contains(n)) { continue; }
+                    if (n._canwalk != true) { Checked.Add(n); continue; }
+                    if (n._G == null)
+                    {
+                        n.G = current.G + n.distance;
+                        n._Parent = current;
+                    }
+                    if (n.G > (current.G + n.distance))
+                    {
+                        n.G = current.G + n.distance;
+                        n._Parent = current;
+                    }
+                    if (Viable.Contains(n) == false) { Viable.Add(n); }
+                }
+                //input[current._y][current._x][3] = (byte)colour;
+                Viable.Remove(current);
+                Checked.Add(current);
+                c++;
+                if (c % 300==0) { colour += 1; }
+                if (c % 1000 == 0) { Console.WriteLine(c);Console.WriteLine(current._H + " " + current._F + " " + current._G + " " +Viable.Count); }
+                if (c % 75000 == 0) { break; }
+            }
+            //if (Viable.Count > 0)
+            //{
+            //    foreach (Node n in Viable)
+            //    {
+            //        input[n._y][n._x][1] = 255;
+            //        input[n._y][n._x][2] = 0;
+            //        input[n._y][n._x][3] = 255;
+            //    }
+            //}
+            List<int[]> Path = new List<int[]> { };
+            while (current._Parent != null)
+            {
+                Path.Add(current._location);
+                current = current._Parent;
+            }
+            Console.WriteLine(Path.Count);
+            foreach (int[] i in Path)
+            {
+                int x = i[1];
+                int y = i[0];
+                input[y][x][3] = 0;
+                input[y][x][2] = 0;
+                input[y][x][1] = 255;
+
+            }
+            return input;
         }
     }
 }

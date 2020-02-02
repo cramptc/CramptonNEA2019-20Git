@@ -2,3 +2,11 @@ Maze Specs
 - Two red dots, start and end points
 - Blue Outline fully enveloping both Red Dots
 - Solid Blue Lines for each Wall to avoid confusion of gap
+- None of the surface paper is on should be visible
+
+Each maze will have it's own manually tuned threshhold for b/w and start or stop.
+Common errors:
+- BW threshold too high: Too much black and may interfere with the path by blocking the only viable path or covering the start/end nodes
+- BW threshold too low: everything goes white and there become holes that shouldn't be there so invalid solution
+- _const too low: random bits of white might be seen as boundaries or start/end points making solutions impossible
+- _const too high: difficult to find start/stop points or sides that are fainter. Means potentially walls arent noticed which increases area checked.
